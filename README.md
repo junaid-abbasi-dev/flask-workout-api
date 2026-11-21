@@ -13,7 +13,7 @@ pipenv install
 pipenv shell
 ```
 
-Database setup comes in a later step:
+Then create the database and seed it:
 
 ```bash
 export FLASK_APP=server/app.py
@@ -44,4 +44,3 @@ The server listens on `http://127.0.0.1:5555`.
 - `POST /exercises` creates an exercise. Send JSON with `name`, `category`, and `equipment_needed`. A blank name returns 400.
 - `DELETE /exercises/<id>` deletes that exercise and its workout links.
 - `POST /workouts/<workout_id>/exercises/<exercise_id>/workout_exercises` adds an exercise to a workout. Send JSON with `reps`, `sets`, and `duration_seconds`. Any of those numbers can be null.
-Endpoint list will be added after the routes are built.
