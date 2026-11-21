@@ -1,7 +1,7 @@
 # Flask application entry point. Routes will be added in a later step.
 from flask import Flask, make_response
 from flask_migrate import Migrate
-
+from schemas import WorkoutSchema
 from models import *
 
 app = Flask(__name__)
@@ -11,15 +11,21 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 migrate = Migrate(app, db)
 
 db.init_app(app)
+workouts_schema = WorkoutSchema(many=True)
+workout_schema = WorkoutSchema()
 
 # Define Routes here
 @app.route('/workouts', methods=['GET'])
 def get_workouts():
-    return make_response({"message": "List of workouts"}), 200
+    workouts = Workout.query.all()
+    return make_response(workouts_schema.dump(workouts)), 200
 
 @app.route('/workouts/<int:id>', methods=['GET'])
 def get_workout(id):
-    return make_response({"message": "One workout"}), 200
+    workout = Workout.query.filter_by(id=id).first()
+    if workout is None:
+        return make_response({"error": "Workout not found"}, 404)
+    return make_response(workout_schema.dump(workout), 200)
 
 @app.route('/workouts', methods=['POST'])
 def create_workout():
