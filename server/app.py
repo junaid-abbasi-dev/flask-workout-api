@@ -15,6 +15,7 @@ db.init_app(app)
 workouts_schema = WorkoutSchema(many=True)
 workout_schema = WorkoutSchema()
 exercises_schema = ExerciseSchema(many=True)
+exercise_schema = ExerciseSchema()
 
 # Define Routes here
 @app.route('/workouts', methods=['GET'])
@@ -59,7 +60,10 @@ def get_exercises():
 
 @app.route('/exercises/<int:id>', methods=['GET'])
 def get_exercise(id):
-    return make_response({"message": "One exercise"}, 200)
+    exercise = Exercise.query.filter_by(id=id).first()
+    if exercise is None:
+        return make_response({"error": "Exercise not found"}, 404)
+    return make_response(exercise_schema.dump(exercise), 200)
 
 @app.route('/exercises', methods=['POST'])
 def create_exercise():
