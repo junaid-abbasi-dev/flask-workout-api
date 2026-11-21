@@ -2,7 +2,7 @@
 from flask import Flask, make_response, request
 from marshmallow import ValidationError
 from flask_migrate import Migrate
-from schemas import WorkoutSchema, ExerciseSchema
+from schemas import WorkoutSchema, ExerciseSchema, WorkoutExerciseSchema
 from models import *
 
 app = Flask(__name__)
@@ -16,6 +16,7 @@ workouts_schema = WorkoutSchema(many=True)
 workout_schema = WorkoutSchema()
 exercises_schema = ExerciseSchema(many=True)
 exercise_schema = ExerciseSchema()
+workout_exercise_schema = WorkoutExerciseSchema()
 
 # Define Routes here
 @app.route('/workouts', methods=['GET'])
@@ -92,6 +93,28 @@ def delete_exercise(id):
 
 @app.route('/workouts/<int:workout_id>/exercises/<int:exercise_id>/workout_exercises', methods=['POST'])
 def add_exercise_to_workout(workout_id, exercise_id):
-    return make_response({"message": "Exercise added to workout"}, 201)
+    workout = Workout.query.filter_by(id=workout_id).first()
+    if workout is None:
+        return make_response({"error": "Workout not found"}, 404)
+
+    exercise = Exercise.query.filter_by(id=exercise_id).first()
+    if exercise is None:
+        return make_response({"error": "Exercise not found"}, 404)
+
+    try:
+        data = workout_exercise_schema.load(request.get_json())
+    except ValidationError as err:
+        return make_response({"errors": err.messages}, 400)
+
+    link = WorkoutExercise(
+        workout_id=workout_id,
+        exercise_id=exercise_id,
+        reps=data.get("reps"),
+        sets=data.get("sets"),
+        duration_seconds=data.get("duration_seconds"),
+    )
+    db.session.add(link)
+    db.session.commit()
+    return make_response(workout_exercise_schema.dump(link), 201)
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
