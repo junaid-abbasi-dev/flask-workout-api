@@ -2,7 +2,7 @@
 from flask import Flask, make_response, request
 from marshmallow import ValidationError
 from flask_migrate import Migrate
-from schemas import WorkoutSchema
+from schemas import WorkoutSchema, ExerciseSchema
 from models import *
 
 app = Flask(__name__)
@@ -14,6 +14,7 @@ migrate = Migrate(app, db)
 db.init_app(app)
 workouts_schema = WorkoutSchema(many=True)
 workout_schema = WorkoutSchema()
+exercises_schema = ExerciseSchema(many=True)
 
 # Define Routes here
 @app.route('/workouts', methods=['GET'])
@@ -53,7 +54,8 @@ def delete_workout(id):
 
 @app.route('/exercises', methods=['GET'])
 def get_exercises():
-    return make_response({"message": "List of exercises"}, 200)
+    exercises = Exercise.query.all()
+    return make_response(exercises_schema.dump(exercises), 200)
 
 @app.route('/exercises/<int:id>', methods=['GET'])
 def get_exercise(id):
