@@ -1,4 +1,5 @@
 from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validates, ValidationError
 
 class ExerciseSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -11,6 +12,11 @@ class ExerciseSchema(Schema):
     many=True,
     dump_only=True,
     )
+
+    @validates("name")
+    def validate_name(self, value):
+        if not value or not value.strip():
+            raise ValidationError("Name must not be empty.")
 
 class WorkoutExerciseSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -32,4 +38,9 @@ class WorkoutSchema(Schema):
     duration_minutes = fields.Int(required=True)
     notes = fields.Str()
     workout_exercises = fields.Nested(WorkoutExerciseSchema, many=True, dump_only=True)
+
+    @validates("duration_minutes")
+    def validate_duration_minutes(self, value):
+        if value is None or value <= 0:
+            raise ValidationError("Duration minutes must be greater than 0.")
 
