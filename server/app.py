@@ -1,4 +1,4 @@
-# Flask application entry point. Routes will be added in a later step.
+# Flask application entry point. 
 from flask import Flask, make_response, request
 from marshmallow import ValidationError
 from flask_migrate import Migrate

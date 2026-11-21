@@ -39,7 +39,7 @@ class Workout(db.Model):
     @validates('duration_minutes')
     def validate_duration_minutes(self, key, duration_minutes):
         if duration_minutes is None or duration_minutes <= 0:
-            raise ValueError("Duration minutes must not be empty or less than 0")
+            raise ValueError("Duration minutes must be greater than 0.")
         return duration_minutes
 
 class WorkoutExercise(db.Model):
