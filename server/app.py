@@ -42,7 +42,14 @@ def create_workout():
 
 @app.route('/workouts/<int:id>', methods=['DELETE'])
 def delete_workout(id):
-    return make_response({"message": "Workout deleted"}), 200
+    workout = Workout.query.filter_by(id=id).first()
+    if workout is None:
+        return make_response({"error": "Workout not found"}, 404)
+    for link in workout.workout_exercises:
+        db.session.delete(link)
+    db.session.delete(workout)
+    db.session.commit()
+    return make_response({"message": "Workout deleted"}, 200)
 
 @app.route('/exercises', methods=['GET'])
 def get_exercises():
