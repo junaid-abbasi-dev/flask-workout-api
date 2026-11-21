@@ -34,7 +34,6 @@ flask run --port 5555
 The server listens on `http://127.0.0.1:5555`.
 
 ## Endpoints
-## Endpoints
 
 - `GET /workouts` lists every workout, including each exercise with reps, sets, and duration.
 - `GET /workouts/<id>` returns one workout. A missing id returns 404.
