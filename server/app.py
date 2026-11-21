@@ -1,5 +1,6 @@
 # Flask application entry point. Routes will be added in a later step.
-from flask import Flask, make_response
+from flask import Flask, make_response, request
+from marshmallow import ValidationError
 from flask_migrate import Migrate
 from schemas import WorkoutSchema
 from models import *
@@ -29,7 +30,15 @@ def get_workout(id):
 
 @app.route('/workouts', methods=['POST'])
 def create_workout():
-    return make_response({"message": "Workout created"}), 201
+    try:
+        data = workout_schema.load(request.get_json())
+    except ValidationError as err:
+        return make_response({"errors": err.messages}, 400)
+
+    workout = Workout(**data)
+    db.session.add(workout)
+    db.session.commit()
+    return make_response(workout_schema.dump(workout), 201)
 
 @app.route('/workouts/<int:id>', methods=['DELETE'])
 def delete_workout(id):
